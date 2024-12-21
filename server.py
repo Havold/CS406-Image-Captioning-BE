@@ -4,9 +4,11 @@ from my_model.clip_mt5 import CLIPMT5ImageCaptioningModel  # Import lớp tùy c
 from my_model.clip_mbart import CLIPMBartImageCaptioningModel
 from PIL import Image
 import os
+from flask_cors import CORS
 
 # Khởi tạo Flask app
 app = Flask(__name__)
+CORS(app)
 
 # Tải processor, tokenizer và mô hình
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
