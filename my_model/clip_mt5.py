@@ -23,7 +23,7 @@ class CLIPMT5ImageCaptioningConfig(PretrainedConfig):
         self,
         clip_model_name="openai/clip-vit-base-patch32",
         mt5_model_name="google/mt5-small",
-        max_caption_length=140,
+        max_caption_length=192 ,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -66,5 +66,5 @@ class CLIPMT5ImageCaptioningModel(PreTrainedModel):
         with torch.no_grad():
             image_features = self.clip.get_image_features(images)
             image_embeddings = self.projection(image_features)
-            outputs = self.mt5.generate(inputs_embeds=image_embeddings.unsqueeze(1))
+            outputs = self.mt5.generate(max_length=90, inputs_embeds=image_embeddings.unsqueeze(1))
             return self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
