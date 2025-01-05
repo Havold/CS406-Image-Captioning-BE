@@ -47,7 +47,7 @@ python app.py
 5. The server will start at http://localhost:5000.
 
 ## ❗ API Endpoints
-1. Generate Caption with CLIP-MT5
+**1. Generate Caption with CLIP-MT5**
    - **URL**: `/clip-mt5`
    - **Method**: `POST`
    - **Parameters**:
@@ -67,52 +67,48 @@ python app.py
     }
    ```
 
-2. Edge Detection
-   - **URL**: `/edge-detectors`
+**2. Generate Caption with CLIP-MBART**
+   - **URL**: `/clip-mbart`
    - **Method**: `POST`
    - **Parameters**:
-      - `method`: `sobel`, `prewitt`, or `canny`.
-      - `low`: Lower threshold (for Canny).
-      - `high`: Upper threshold (for Canny).
+      - `image`: Image file (PNG, JPG, JPEG).
    - **File**: Image file (JPEG/PNG).
-   - **Response**: Returns URLs of the edge-detected images.
-3. Noise Addition and Denoising
-   - **URL**: `/denoising`
-   - **Method**: `POST`
-   - **Parameters**:
-      - `type`: `sparkle-noise`, `salt-pepper-noise`, or `gaussian-noise`.
-   - **File**: Image file (JPEG/PNG).
-   - **Response**: Returns URLs of the noisy and denoised images.
-4. Get Processed Image
-   - **URL**: `/image/<category>/<filename>`
-   - **Method**: `GET`
-   - **Parameters**:
-      - `category`: `uploads`, `sharpened`, `noise`, `denoise`, or `edge`.
-      - `filename`: Name of the image file.
-   - **Response**: Returns the processed image.
+   - **Response**: Returns a JSON object with the generated caption.
+   - Example Request (Postman)
+   ```
+    POST http://localhost:5000/clip-mbart
+   ```
+   - Form-data:
+     - `image`: (Attach your image file)
+   - Response:
+   ```
+    {
+    "caption": "A scenic view of mountains during sunset."
+    }
+   ```
 
 ## 🔥 Usage
 Once the server is running, you can test the application by sending requests via a tool like `Postman` or via a frontend application to interact with the API.
 
 ---------------------------------------------------------
-# 📷 API xử lý, cải thiện hình ảnh.
+# 📷 API Mô Tả Ảnh (Image Captioning API)
 
-Đây là một API dựa trên Flask để xử lý ảnh, cung cấp các tính năng như làm sắc nét, thêm và loại bỏ nhiễu, phát hiện biên cạnh bằng các phương pháp Sobel, Prewitt, và Canny. Ứng dụng cho phép người dùng tải ảnh lên, áp dụng các thao tác xử lý, và tải về các ảnh đã qua xử lý.
+Đây là một API dựa trên Flask, được sử dụng để sinh mô tả cho hình ảnh bằng các mô hình tiên tiến như **CLIP-MT5** và **CLIP-MBART**. Ứng dụng nhận hình ảnh làm đầu vào, xử lý và trả về một câu mô tả chi tiết.
 
 ## 🌟 Tính năng
-- **Làm sắc nét**: Điều chỉnh mức độ làm sắc nét cho ảnh tải lên.
-- **Thêm và Loại bỏ Nhiễu**: Thêm nhiễu (Sparkle, Salt & Pepper, Gaussian) vào ảnh và sau đó áp dụng các bộ lọc khử nhiễu (Mean, Median).
-- **Phát hiện biên cạnh**: Phát hiện biên cạnh bằng phương pháp Sobel, Prewitt, hoặc Canny.
+- **Sinh mô tả bằng CLIP-MT5:** Tạo mô tả hình ảnh sử dụng mô hình CLIP-MT5.
+- **Sinh mô tả bằng CLIP-MBART:** Tạo mô tả hình ảnh sử dụng mô hình CLIP-MBART.
+- **Hỗ trợ đa mô hình:** Cung cấp các endpoint để lựa chọn giữa hai mô hình sinh mô tả tiên tiến.
 
-## 🛠️ Requirements
+## 🛠️ Yêu cầu hệ thống
 
 Trước khi chạy dự án, hãy đảm bảo bạn đã cài đặt các dependencies sau:
-- Python 3.x, 3.12.6 __(Đề xuất)__
-- Flask 3.0.3
-- OpenCV 4.10.0
-- NumPy 2.1.1
-- SciPy 1.14.1
+- Python 3.x __(khuyến nghị 3.10.13)__
+- Flask 3.1.0
+- Transformers 4.47.1
 - Flask-CORS 5.0.0
+- Pillow 11.0.0
+- PyTorch (tương thích với mô hình)
 
 Bạn có thể cài đặt tất cả các thư viện trên bằng cách chạy:
 
@@ -123,17 +119,14 @@ pip install -r requirements.txt
 ## 🚀 Bắt đầu thôi!
 1. Clone dự án về
 ```
-git clone https://github.com/Havold/CS406-Lab03-BE.git
-cd CS406-Lab03-BE
+git clone https://github.com/Havold/CS406-Image-Captioning-BE.git
+cd CS406-Image-Captioning-BE.git
 ```
-2. Tạo các thư mục cần thiết
+2. Chuẩn bị mô hình
 
-Đảm bảo các thư mục sau đây tồn tại để lưu trữ ảnh tải lên và xử lý:
-- `./images/uploads/`
-- `./images/sharpened/`
-- `./images/noise/`
-- `./images/denoise/`
-- `./images/edge/`
+Đảm bảo các mô hình sau được tải xuống và lưu trong thư mục dự án:
+- `clip_mt5_base_model`: Chứa các file như `config.json`, `model.safetensors`, v.v.
+- `clip_mbart_model`: Các file của mô hình đã được huấn luyện trước.
 2. Cài đặt các dependencies:
 ```
 pip install -r requirements.txt
@@ -145,36 +138,45 @@ python app.py
 5. Server sẽ chạy ở: http://localhost:5000.
 
 ## ❗ API Endpoints
-1. Làm sắc nét ảnh
-   - **URL**: `/sharpening`
+**1. Sinh mô tả ảnh bằng CLIP-MT5**
+   - **URL**: `/clip-mt5`
    - **Method**: `POST`
    - **Parameters**:
-      - `level`: Mức độ làm sắc nét (số nguyên).
+      - `image`: File ảnh (PNG, JPG, JPEG).
    - **File**: Tệp ảnh (JPEG/PNG).
-   - **Response**: Trả về URL của ảnh đã làm sắc nét.
-2. Phát hiện biên cạnh
-   - **URL**: `/edge-detectors`
+   - **Response**: Một object JSON chứa mô tả được sinh ra.
+   - Ví dụ sử dụng (Postman):
+      - URL:
+        ```
+         POST http://localhost:5000/clip-mt5
+         ``` 
+      - Form-data:
+         - `image`: (Chọn file ảnh từ máy của bạn)
+      - Kết quả:
+        ```
+         {
+           "caption": "Khung cảnh núi non vào lúc hoàng hôn."
+         }
+        ```
+**2. Sinh mô tả ảnh bằng CLIP-MBART**
+   - **URL**: `/clip-mbart`
    - **Method**: `POST`
    - **Parameters**:
-      - `method`: `sobel`, `prewitt`, hoặc `canny`.
-      - `low`: Lower threshold (cho Canny).
-      - `high`: Upper threshold (cho Canny).
+      - `image`: File ảnh (PNG, JPG, JPEG).
    - **File**: Tệp ảnh (JPEG/PNG).
-   - **Response**: Trả về URL các ảnh đã được phát hiện biên cạnh.
-3. Thêm và loại bỏ nhiễu
-   - **URL**: `/denoising`
-   - **Method**: `POST`
-   - **Parameters**:
-      - `type`: `sparkle-noise`, `salt-pepper-noise`, hoặc `gaussian-noise`.
-   - **File**: Tệp ảnh (JPEG/PNG).
-   - **Response**: Trả về URL của các ảnh đã thêm nhiễu và khử nhiễu
-4. Lấy ảnh đã xử lý
-   - **URL**: `/image/<category>/<filename>`
-   - **Method**: `GET`
-   - **Parameters**:
-      - `category`: `uploads`, `sharpened`, `noise`, `denoise`, hoặc `edge`.
-      - `filename`: Tên tệp ảnh.
-   - **Response**: Trả về ảnh đã xử lý
-
+   - **Response**: Một object JSON chứa mô tả được sinh ra.
+   - Ví dụ sử dụng (Postman):
+      - URL:
+        ```
+         POST http://localhost:5000/clip-mbart
+         ``` 
+      - Form-data:
+         - `image`: (Chọn file ảnh từ máy của bạn)
+      - Kết quả:
+        ```
+         {
+           "caption": "Khung cảnh núi non vào lúc hoàng hôn."
+         }
+        ```
 ## 🔥 Sử dụng
 Khi server đã chạy, bạn có thể kiểm tra ứng dụng bằng cách gửi các yêu cầu qua các công cụ như `Postman` hoặc thông qua một ứng dụng frontend để tương tác với API.
